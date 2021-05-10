@@ -1,38 +1,65 @@
-.App {
-  text-align: center;
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+body {
+  background: #999999;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+#page-container {
+  display: block;
+  height: 90vh;
+  background: linear-gradient(#333333, #999999);
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
+#tabbar {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 10vh;
+  padding: 2px 0;
+  background-color: #999999;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+#tabbar ul {
+  display: flex;
+  justify-content: space-around;
+  list-style: none;
+  align-items: center;
 }
+
+#tabbar li {
+  display: inline;
+  align-items: center;
+}
+
+#tabbar li a {
+  padding: 1vh;
+  border-radius: 10px;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column-reverse;
+  justify-content: center;
+  align-items: center;
+}
+
+#tabbar li a:hover {
+  background-color: #777;
+}
+
+#tabbar li p {
+  color: black;
+}
+
+#tabbar li img {
+  width: 4vh;
+  height: 4vh;
+}
+
+.colorPicker, .colorPicker * {
+  display: inline;
+}
+
