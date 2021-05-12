@@ -9,6 +9,7 @@ body {
 }
 
 #page-container {
+  position: relative;
   display: block;
   padding: 0 10px;
   height: 90vh;
@@ -110,7 +111,6 @@ body {
 
 #music-controls {
   display: flex;
-
 }
 
 #music-controls > * {

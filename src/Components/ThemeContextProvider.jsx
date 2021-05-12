@@ -25,31 +25,38 @@ export const useThemeContext = () => {
 }
   
 const ThemeContextProvider = ({ children }) => {
-    const [ theme, setTheme ] = useState(localStorage.getItem("theme") ?? "dark")
+    const [ themeKey, setTheme ] = useState(localStorage.getItem("theme") ?? "dark")
     const [ themes, setThemes ] = useState(getInitialThemes())
     useEffect(() => {
         setThemes(getInitialThemes())
-    }, [theme])
+    }, [themeKey])
+
+    const setBodyBackground = (color) => {
+        document.body.style.backgroundColor = color;
+    }
 
     return (
         <ThemeContext.Provider value={{
-            themeState: themes[theme],
-            theme,
+            themeState: themes[themeKey],
+            theme: themeKey,
             setTheme: (event) => {
                 const {target: {value} } = event
                 console.log(value, event)
                 if (themes[value]) {
                     localStorage.setItem("theme", value)
                     setTheme(value)
+                    setBodyBackground(themes[value].BottomGradientColor)
                 }
             },
             updateTheme: (event) => {
                 const {name, value} = event.target
                 const newThemes = { ...themes }
-                newThemes[theme][name] = value
+                newThemes[themeKey][name] = value
                 
                 localStorage.setItem("currentThemes", JSON.stringify(newThemes))
                 setThemes(getInitialThemes())
+                // Using anti-pattern to set body's background color
+                setBodyBackground(newThemes.BottomGradientColor)
             }
         }}>
             {children}

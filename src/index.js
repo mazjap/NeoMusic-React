@@ -3,17 +3,21 @@ import ReactDOM from "react-dom"
 import "./index.css"
 import App from "./App"
 import reportWebVitals from "./reportWebVitals"
+import { QueryClient, QueryClientProvider } from 'react-query'
 import MusicContextProvider from "./Components/MusicContextProvider.jsx"
 import ThemeContextProvider from "./Components/ThemeContextProvider"
 
+const queryClient = new QueryClient();
 
 // ReactDOM.render takes two arguments: (Custom XML dom element, element node)
 ReactDOM.render(
   (<React.StrictMode>
     <ThemeContextProvider>
-      <MusicContextProvider>
-        <App />
-      </MusicContextProvider>
+      <QueryClientProvider client={ queryClient } >
+        <MusicContextProvider>
+          <App />
+        </MusicContextProvider>
+      </QueryClientProvider>
     </ThemeContextProvider>
   </React.StrictMode>),
   document.getElementById('root')

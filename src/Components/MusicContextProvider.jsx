@@ -1,5 +1,6 @@
 import Hidden from "../Hidden"
 import { useContext, useState, createContext } from "react"
+import { useQuery, useQueries } from 'react-query'
 import { useThemeContext } from "./ThemeContextProvider"
 
 import Logo from "../imgs/logo.png"
@@ -12,11 +13,15 @@ const defaultState = {}
 
 const MusicContext = createContext(defaultState)
 
+document.addEventListener("mediaItemDidChange", () => {
+    console.log(MusicController.shared.currentSong())
+})
+
 document.addEventListener("musickitloaded", () => {
     console.log("event listener was called. Configuring musickit")
     window.MusicKit.configure({
-        // For some reason, the developer token must be in plain text. Referencing it from another file, or using string interpolation does not work.
-        developerToken: "",
+        // I lied, it works
+        developerToken: Hidden.appleMusicAPIKey,
         app: {
             name: "NeoMusic.JS",
             build: '2021.05.11'
@@ -65,7 +70,6 @@ class MusicController {
 
     async play() {
         try {
-            await this.mk?.authorize()
             await this.mk?.play()
         } catch(e) {
             this._alertMKError("Unable to play music.")
@@ -83,8 +87,11 @@ class MusicController {
 
     async skipForward() {
         try {
-            await this.mk?.authorize()
-            await this.mk?.player?.skipToNextItem()
+            if (this.mk) {
+                await this.mk.player.skipToNextItem()
+            } else {
+                this._alertMKError("MusicKit was not properly initialized")
+            }
         } catch(e) {
             this._alertMKError("Unable to skip backwards.", e)
             throw e
@@ -93,8 +100,11 @@ class MusicController {
 
     async skipBackward() {
         try {
-            await this.mk?.authorize()
-            await this.mk?.player?.skipToPreviousItem()
+            if (this.mk) {
+                await this.mk?.player?.skipToPreviousItem()
+            } else {
+                this._alertMKError("MusicKit was not properly initialized")
+            }
         } catch(e) {
             this._alertMKError("Unable to skip backwards.", e)
         }
@@ -129,7 +139,14 @@ class MusicController {
     }
 
     songs() {
-        return this.mk?.api.library.songs() ?? []
+        return this.mk?.api.library.songs()
+        // try {
+        //     console.log("songs: " + await this.mk?.api?.library?.songs() ?? [])
+        //     return await this.mk?.api.library.songs() || []
+        // } catch(e) {
+        //     this._alertMKError("Unable to fetch songs", e)
+        //     return []
+        // }
     }
 
     albums() {
@@ -187,7 +204,7 @@ export function MusicPlayer() {
         }>
             <div id="music-info">
                 <h3 style={ textStyle } id="song-title">{ nowPlayingItem.title }</h3>
-                <img id="album-artwork" src={ nowPlayingItem.albumArtwork ?? Logo } alt="Current song's album artwork"></img>
+                <img id="album-artwork" src={ nowPlayingItem.artworkURL ?? Logo } alt="Current song's album artwork"></img>
             </div>
             <div id="music-controls">
                 <button id="skip-back" onClick={ skipToNextSong } style={ buttonStyle } >
@@ -207,17 +224,33 @@ export function MusicPlayer() {
 const MusicContextProvider = ({children}) => {
     const musicController = MusicController.shared
     const [ nowPlayingItem, setNowPlayingItem ] = useState(musicController.currentSong())
-    const [ queue, setQueue ] = useState(musicController.queue())
+    const [ queue, setQueueAction ] = useState(musicController.queue())
     const [ isPlaying, setIsPlaying ] = useState(musicController.isPlaying())
+    // const [{ isLoadingSongs, refetchSongs, data: songs = [] },  
+    //        { isLoadingAlbums, refetchAlbums, data: albums = [] }, 
+    //        { isLoadingArtists, refetchArtists, data: artists = [] }] = useQueries([
+    //            { queryKey: 'songs', queryFn: () => musicController.songs() },
+    //            { queryKey: 'albums', queryFn: () => musicController.albums() },
+    //            { queryKey: 'artists', queryFn: () => musicController.artists() }
+    //         ])
+    const { isLoadingSongs, refetchSongs, data: songs = [] } = useQuery('songs', musicController.songs)
+    const { isLoadingAlbums, refetchAlbums, data: albums = [] } = useQuery('albums', musicController.albums)
+    const { isLoadingArtists, refetchArtists, data: artists = [] } = useQuery('artists', musicController.artists)
 
     return (
         <MusicContext.Provider value={{
             nowPlayingItem,
             isPlaying: musicController.isPlaying(),
             queue,
-            songs: musicController.songs(),
-            albums: musicController.albums(),
-            artists: musicController.artists(),
+            isLoadingSongs,
+            songs,
+            refetchSongs,
+            isLoadingAlbums,
+            albums,
+            refetchAlbums,
+            isLoadingArtists,
+            artists,
+            refetchArtists,
             togglePlayStatus: async () => {
                 await (isPlaying ? musicController.pause() : musicController.play())
                 setIsPlaying(musicController.isPlaying())
@@ -230,9 +263,16 @@ const MusicContextProvider = ({children}) => {
                 await musicController.skipBackward()
                 setNowPlayingItem(musicController.currentSong())
             },
-            setQueue: async () => {
-                await musicController.setQueue({song: "1445845403"})
-                setQueue(musicController.queue())
+            setQueue: async (queueObj) => {
+                console.log(queueObj)
+                await musicController.setQueue(queueObj)
+                setQueueAction(musicController.queue())
+                setNowPlayingItem(musicController.currentSong())
+                setIsPlaying(musicController.isPlaying())
+            },
+            enqueue: async (queueObj) => {
+                await musicController.enqueue(queueObj)
+                setQueueAction(musicController.queue)
                 setNowPlayingItem(musicController.currentSong())
                 setIsPlaying(musicController.isPlaying())
             }

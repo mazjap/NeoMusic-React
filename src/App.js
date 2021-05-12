@@ -7,6 +7,7 @@ import TabBar, { Routes } from "./Components/TabBar"
 import Profile from "./Components/Profile"
 import { MusicPlayer, useMusicContext } from "./Components/MusicContextProvider.jsx"
 import { useThemeContext } from "./Components/ThemeContextProvider"
+import TopCharts from "./Components/TopCharts"
 
 // App
 function App() {
@@ -38,7 +39,7 @@ function App() {
             </Route>
 
             <Route path={Routes.home}>
-              Home content
+              <TopCharts />
             </Route>
           </Switch>
         </div>
