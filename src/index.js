@@ -1,16 +1,20 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
-import { AuthProvider } from './Auth';
+import React from "react"
+import ReactDOM from "react-dom"
+import "./index.css"
+import App from "./App"
+import reportWebVitals from "./reportWebVitals"
+import MusicContextProvider from "./Components/MusicContextProvider.jsx"
+import ThemeContextProvider from "./Components/ThemeContextProvider"
+
 
 // ReactDOM.render takes two arguments: (Custom XML dom element, element node)
 ReactDOM.render(
   (<React.StrictMode>
-    {/* <AuthProvider> */}
-      <App />
-    {/* </AuthProvider> */}
+    <ThemeContextProvider>
+      <MusicContextProvider>
+        <App />
+      </MusicContextProvider>
+    </ThemeContextProvider>
   </React.StrictMode>),
   document.getElementById('root')
 );
