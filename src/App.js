@@ -3,16 +3,16 @@ import './App.css'
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom"
 
 // Components
-import TabBar, { Routes } from "./Components/TabBar"
-import Profile from "./Components/Profile"
 import { MusicPlayer, useMusicContext } from "./Components/MusicContextProvider.jsx"
 import { useThemeContext } from "./Components/ThemeContextProvider"
+import TabBar, { Routes } from "./Components/TabBar"
 import TopCharts from "./Components/TopCharts"
+import Library from "./Components/Library"
+import Profile from "./Components/Profile"
 
 // App
 function App() {
-  const { themeState, setTheme, updateTheme, theme } = useThemeContext()
-  const { TopGradientColor, BottomGradientColor } = themeState
+  const { themeState: { TopGradientColor, BottomGradientColor } } = useThemeContext()
   
   return (
     <Router>
@@ -24,14 +24,11 @@ function App() {
           
           <Switch>
             <Route path={Routes.music}>
-              <div id="library">
-                <h3 className="title">Library</h3>
-                {/* songs.map {  } */}
-              </div>
+              <Library />
             </Route>
 
             <Route path={Routes.profile}>
-              <Profile theme={theme} setTheme={setTheme} themeState={themeState} updateTheme={updateTheme} />
+              <Profile />
             </Route>
             
             <Route path={Routes.search}>

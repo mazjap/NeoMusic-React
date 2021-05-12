@@ -9,16 +9,16 @@ body {
 }
 
 #page-container {
-  position: relative;
   display: block;
   padding: 0 10px;
+  margin-bottom: 50vh;
   height: 90vh;
   background: linear-gradient(#333333, #999999);
   color: white;
 }
 
 #tabbar {
-  position: absolute;
+  position: fixed;
   bottom: 0;
   width: 100%;
   height: 10vh;
@@ -67,7 +67,7 @@ body {
 }
 
 #music-player-container {
-  position: absolute;
+  position: fixed;
   bottom: 10vh;
   background-color: black;
   width: 100%;
@@ -109,6 +109,11 @@ body {
   align-items: center;
 }
 
+#album-artwork {
+  height: 8vh;
+  width: 8vh;
+}
+
 #music-controls {
   display: flex;
 }
@@ -120,4 +125,25 @@ body {
 #album-artwork {
   height: 12vh;
   width: 12vh;
+}
+
+#song-library-list {
+  margin: 0 50px;
+}
+
+.song-container {
+  display: flex;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.25);
+  border-width: 1px;
+  border-top: #000;
+  margin: 3px 0;
+  cursor: pointer;
+}
+
+.song-container img {
+  display: inline;
+  width: 5vh;
+  height: 5vh;
+  margin-right: 10px;
 }

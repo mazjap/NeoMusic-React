@@ -33,7 +33,6 @@ document.addEventListener("musickitloaded", () => {
     MusicController.shared.mk = musicKit
     console.log("Big success")
 })
-
 class MusicController {
     // Musickit.api.song/album/artist (takes an id or an array of ids: String/[String])
     // Musickit.api.library.song/album/artist (using song/album/artist id(s): String/[String])
@@ -138,8 +137,8 @@ class MusicController {
         }
     }
 
-    songs() {
-        return this.mk?.api.library.songs()
+    async songs() {
+        return await this.mk?.api.library.songs()
         // try {
         //     console.log("songs: " + await this.mk?.api?.library?.songs() ?? [])
         //     return await this.mk?.api.library.songs() || []
@@ -149,12 +148,16 @@ class MusicController {
         // }
     }
 
-    albums() {
-        return this.mk?.api.library.albums() ?? []
+    async albums() {
+        return await this.mk?.api.library.albums() ?? []
     }
 
-    artists() {
-        return this.mk?.api.library.artists() ?? []
+    async artists() {
+        return await this.mk?.api.library.artists() ?? []
+    }
+
+    async search(query) {
+        return await this.mk?.api.search({ term: query, types: ["songs"] })
     }
 
     queue() {
@@ -182,10 +185,11 @@ export const useMusicContext = () => {
     return useContext(MusicContext)
 }
 
+// TODO: - convert to classical component to make use of ComponentDidMount and ComponentWillUnmount and use action listeners
 export function MusicPlayer() {
     // Render small version first, worry about large version and transistion animations later
     const { themeState: { TopGradientColor, BottomGradientColor, TextColor } } = useThemeContext()
-    const { nowPlayingItem, isPlaying, togglePlayStatus, skipToNextSong, skipToPreviousSong, setQueue } = useMusicContext()
+    const { nowPlayingItem, isPlaying, togglePlayStatus, skipToNextSong, skipToPreviousSong, setQueueAction } = useMusicContext()
 
     // Static styling goes in css files whereas dynamic styling goes in jsx
     const textStyle = {
@@ -207,13 +211,13 @@ export function MusicPlayer() {
                 <img id="album-artwork" src={ nowPlayingItem.artworkURL ?? Logo } alt="Current song's album artwork"></img>
             </div>
             <div id="music-controls">
-                <button id="skip-back" onClick={ skipToNextSong } style={ buttonStyle } >
+                <button id="skip-back" onClick={ skipToPreviousSong } style={ buttonStyle } >
                     <img src={ Backward } alt="skip backward" />
                 </button>
                 <button id="pause-play" onClick={ togglePlayStatus } style={ buttonStyle } >
                     <img src={ isPlaying ? Pause : Play } alt="toggle play" />
                 </button>
-                <button id="skip-forward" onClick={ setQueue } style={ buttonStyle } >
+                <button id="skip-forward" onClick={ skipToNextSong } style={ buttonStyle } >
                     <img src={ Forward } alt="skip forward" />
                 </button>
             </div>
@@ -226,13 +230,7 @@ const MusicContextProvider = ({children}) => {
     const [ nowPlayingItem, setNowPlayingItem ] = useState(musicController.currentSong())
     const [ queue, setQueueAction ] = useState(musicController.queue())
     const [ isPlaying, setIsPlaying ] = useState(musicController.isPlaying())
-    // const [{ isLoadingSongs, refetchSongs, data: songs = [] },  
-    //        { isLoadingAlbums, refetchAlbums, data: albums = [] }, 
-    //        { isLoadingArtists, refetchArtists, data: artists = [] }] = useQueries([
-    //            { queryKey: 'songs', queryFn: () => musicController.songs() },
-    //            { queryKey: 'albums', queryFn: () => musicController.albums() },
-    //            { queryKey: 'artists', queryFn: () => musicController.artists() }
-    //         ])
+
     const { isLoadingSongs, refetchSongs, data: songs = [] } = useQuery('songs', musicController.songs)
     const { isLoadingAlbums, refetchAlbums, data: albums = [] } = useQuery('albums', musicController.albums)
     const { isLoadingArtists, refetchArtists, data: artists = [] } = useQuery('artists', musicController.artists)
@@ -252,7 +250,7 @@ const MusicContextProvider = ({children}) => {
             artists,
             refetchArtists,
             togglePlayStatus: async () => {
-                await (isPlaying ? musicController.pause() : musicController.play())
+                await (musicController.isPlaying() ? musicController.pause() : musicController.play())
                 setIsPlaying(musicController.isPlaying())
             },
             skipToNextSong: async () => {
@@ -263,12 +261,13 @@ const MusicContextProvider = ({children}) => {
                 await musicController.skipBackward()
                 setNowPlayingItem(musicController.currentSong())
             },
-            setQueue: async (queueObj) => {
+            setQueue: (queueObj) => {
                 console.log(queueObj)
-                await musicController.setQueue(queueObj)
-                setQueueAction(musicController.queue())
-                setNowPlayingItem(musicController.currentSong())
-                setIsPlaying(musicController.isPlaying())
+                musicController.setQueue(queueObj).then(() => {
+                    setQueueAction(musicController.queue())
+                    setNowPlayingItem(musicController.currentSong())
+                    setIsPlaying(musicController.isPlaying())
+                })
             },
             enqueue: async (queueObj) => {
                 await musicController.enqueue(queueObj)

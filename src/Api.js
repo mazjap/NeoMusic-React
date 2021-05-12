@@ -8,6 +8,9 @@ function defaultHeaders() {
 }
 
 const Api = {
+    fetchSearchResults: async (query) => {
+        
+    },
     fetchCharts: async () => {
         const response = await fetch("https://api.music.apple.com/v1/catalog/us/charts?types=songs", {
             method: "GET",

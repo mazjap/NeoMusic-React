@@ -1,5 +1,7 @@
+import { useThemeContext } from "./ThemeContextProvider"
+
 export default function Profile(props) {
-    const { theme, setTheme, updateTheme, themeState } = props
+    const { themeState, setTheme, updateTheme, theme } = useThemeContext()
 
     const textStyle = {
         color: themeState.TextColor
@@ -11,7 +13,7 @@ export default function Profile(props) {
           name: "TopGradientColor"
         },
         {
-          label: "Bottom Gradient Color", 
+          label: "Bottom Gradient Color",
           name: "BottomGradientColor"
         }, 
         {
@@ -41,8 +43,7 @@ export default function Profile(props) {
                     })
                 }
             </ul>
-            <button id="apple-music-authorize">Auth</button>
-            <button id="apple-music-unauthorize">Unauth</button>
+            
         </div>
     )
 } 

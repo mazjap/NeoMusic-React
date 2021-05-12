@@ -32,8 +32,11 @@ const ThemeContextProvider = ({ children }) => {
     }, [themeKey])
 
     const setBodyBackground = (color) => {
+        // Using anti-pattern to set body's background color
         document.body.style.backgroundColor = color;
     }
+
+    setBodyBackground(themes[themeKey].BottomGradientColor)
 
     return (
         <ThemeContext.Provider value={{
@@ -55,7 +58,6 @@ const ThemeContextProvider = ({ children }) => {
                 
                 localStorage.setItem("currentThemes", JSON.stringify(newThemes))
                 setThemes(getInitialThemes())
-                // Using anti-pattern to set body's background color
                 setBodyBackground(newThemes.BottomGradientColor)
             }
         }}>
